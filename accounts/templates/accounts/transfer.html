@@ -1,0 +1,155 @@
+{% extends 'accounts/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Transfer Money - Chase Bank{% endblock %}
+{% block page_title %}Transfer Money{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-money-bill-transfer me-2"></i>Make a Transfer</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="transferForm">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6><i class="fas fa-info-circle me-2"></i>Transfer Details</h6>
+                        <div id="transferDetails" class="small">
+                            <div class="row">
+                                <div class="col-6">
+                                    <span class="text-muted">From Account:</span>
+                                    <div id="fromAccountDetails">-</div>
+                                </div>
+                                <div class="col-6">
+                                    <span class="text-muted">To Account:</span>
+                                    <div id="toAccountDetails">-</div>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <span class="text-muted">Available After Transfer:</span>
+                                <div id="availableAfter" class="fw-bold">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            <i class="fas fa-paper-plane me-2"></i>Complete Transfer
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Transfer Limits -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Transfer Timing</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small">
+                    <li class="mb-2">
+                        <i class="fas fa-bolt text-success me-2"></i>
+                        <strong>Instant Transfers:</strong> Between your Chase accounts
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-clock text-warning me-2"></i>
+                        <strong>Same Day:</strong> Submitted before 5 PM ET
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-calendar text-info me-2"></i>
+                        <strong>Next Day:</strong> Submitted after 5 PM ET
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Recent Transfers -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-history me-2"></i>Recent Transfers</h6>
+            </div>
+            <div class="card-body">
+                {% for transfer in recent_transfers %}
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <div>
+                        <small class="text-muted">{{ transfer.initiated_date|date:"M d" }}</small>
+                        <div class="small">{{ transfer.description|truncatewords:3 }}</div>
+                    </div>
+                    <div class="text-end">
+                        <strong class="text-danger">-${{ transfer.amount|floatformat:2 }}</strong>
+                        <div class="small text-muted">{{ transfer.status }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted small">No recent transfers</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fromAccountSelect = document.getElementById('id_from_account');
+    const toAccountSelect = document.getElementById('id_to_account');
+    const amountInput = document.getElementById('id_amount');
+    const accountData = {{ account_data|safe }};
+    
+    function updateTransferDetails() {
+        const fromAccountId = fromAccountSelect.value;
+        const toAccountId = toAccountSelect.value;
+        const amount = parseFloat(amountInput.value) || 0;
+        
+        const fromAccount = accountData.find(acc => acc.id == fromAccountId);
+        const toAccount = accountData.find(acc => acc.id == toAccountId);
+        
+        if (fromAccount) {
+            document.getElementById('fromAccountDetails').innerHTML = 
+                `<strong>${fromAccount.nickname}</strong><br>
+                 <small>Available: $${fromAccount.available_balance}</small>`;
+        }
+        
+        if (toAccount) {
+            document.getElementById('toAccountDetails').innerHTML = 
+                `<strong>${toAccount.nickname}</strong>`;
+        }
+        
+        if (fromAccount && amount > 0) {
+            const availableAfter = fromAccount.available_balance - amount;
+            document.getElementById('availableAfter').innerHTML = 
+                `$${availableAfter.toFixed(2)}`;
+            
+            // Highlight if insufficient funds
+            if (availableAfter < 0) {
+                document.getElementById('availableAfter').classList.add('text-danger');
+            } else {
+                document.getElementById('availableAfter').classList.remove('text-danger');
+            }
+        }
+    }
+    
+    fromAccountSelect.addEventListener('change', updateTransferDetails);
+    toAccountSelect.addEventListener('change', updateTransferDetails);
+    amountInput.addEventListener('input', updateTransferDetails);
+    
+    // Initial update
+    updateTransferDetails();
+    
+    // Form submission handling
+    document.getElementById('transferForm').addEventListener('submit', function(e) {
+        const submitBtn = document.getElementById('submitBtn');
+        UIHelpers.showLoading(submitBtn);
+    });
+});
+</script>
+{% endblock %}

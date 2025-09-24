@@ -1,0 +1,259 @@
+{% extends 'accounts/base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard - Chase Bank{% endblock %}
+{% block page_title %}Account Overview{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group">
+    <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+        <i class="fas fa-print"></i> Print
+    </button>
+    <button class="btn btn-sm btn-outline-secondary" onclick="exportData()">
+        <i class="fas fa-download"></i> Export
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Balance
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            ${{ total_balance|floatformat:2|intcomma }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Available Balance
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            ${{ available_balance|floatformat:2|intcomma }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-wallet fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Active Accounts
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ accounts.count }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-credit-card fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Pending Alerts
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ recent_alerts.count }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-bell fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Accounts Summary -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">My Accounts</h6>
+                <a href="{% url 'transfer_money' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-exchange-alt"></i> Transfer
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th>Number</th>
+                                <th>Balance</th>
+                                <th>Available</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in accounts %}
+                            <tr style="cursor: pointer;" onclick="window.location='{% url 'account_detail' account.id %}'">
+                                <td>
+                                    <strong>{{ account.account_nickname }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ account.get_account_type_display }}</small>
+                                </td>
+                                <td>****{{ account.account_number|slice:"-4:" }}</td>
+                                <td class="{% if account.balance < 0 %}text-danger{% else %}text-success{% endif %}">
+                                    ${{ account.balance|floatformat:2|intcomma }}
+                                </td>
+                                <td class="text-success">
+                                    ${{ account.available_balance|floatformat:2|intcomma }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for transaction in recent_transactions %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ transaction.description }}</h6>
+                            <small class="text-muted">
+                                {{ transaction.account.account_nickname }} • 
+                                {{ transaction.date|date:"M d, Y" }}
+                            </small>
+                        </div>
+                        <span class="{% if transaction.transaction_type == 'credit' %}text-success{% else %}text-danger{% endif %}">
+                            {% if transaction.transaction_type == 'credit' %}+{% else %}-{% endif %}
+                            ${{ transaction.amount|floatformat:2 }}
+                        </span>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No recent transactions</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{% url 'transaction_history' %}" class="btn btn-sm btn-outline-primary">
+                        View All Transactions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Upcoming Bills -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Upcoming Bills</h6>
+                <a href="{% url 'bill_pay' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus"></i> Pay Bill
+                </a>
+            </div>
+            <div class="card-body">
+                {% for bill in upcoming_bills %}
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                    <div>
+                        <h6 class="mb-1">{{ bill.payee_name }}</h6>
+                        <small class="text-muted">Due {{ bill.scheduled_date|date:"M d, Y" }}</small>
+                    </div>
+                    <div class="text-end">
+                        <strong class="text-danger">${{ bill.amount|floatformat:2 }}</strong>
+                        <br>
+                        <span class="badge bg-warning text-dark">{{ bill.get_frequency_display }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4">
+                    <i class="fas fa-file-invoice-dollar fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No upcoming bills</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Alerts -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Alerts</h6>
+                <a href="{% url 'alerts' %}" class="btn btn-sm btn-outline-primary">
+                    View All
+                </a>
+            </div>
+            <div class="card-body">
+                {% for alert in recent_alerts %}
+                <div class="alert alert-{% if alert.alert_type == 'security' %}danger{% else %}warning{% endif %} alert-dismissible fade show mb-2" role="alert">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-{% if alert.alert_type == 'security' %}shield-alt{% else %}bell{% endif %} me-2"></i>
+                            {{ alert.message }}
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <small class="text-muted">{{ alert.created_date|timesince }} ago</small>
+                </div>
+                {% empty %}
+                <div class="text-center py-4">
+                    <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No recent alerts</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function exportData() {
+    // Simple export functionality - in real app, this would generate CSV/PDF
+    alert('Export feature would generate a PDF statement here.');
+}
+</script>
+{% endblock %}

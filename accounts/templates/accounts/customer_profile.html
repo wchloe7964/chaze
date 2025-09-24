@@ -1,0 +1,166 @@
+{% extends 'accounts/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}My Profile - Chase Bank{% endblock %}
+{% block page_title %}Customer Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                                <small class="form-text text-muted">Username cannot be changed</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" class="form-control" value="{{ user.email }}" readonly>
+                                <small class="form-text text-muted">Contact support to change email</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" value="{{ user.first_name }}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" value="{{ user.last_name }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="border-bottom pb-2 mb-3">Contact Information</h6>
+                    
+                    {{ form|crispy }}
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Update Profile
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Account Summary -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-university me-2"></i>Account Summary</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Customer Since</small>
+                    <h6>{{ user.date_joined|date:"M d, Y" }}</h6>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Customer ID</small>
+                    <h6>{{ profile.customer_id }}</h6>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">Active Accounts</small>
+                    <h6>{{ accounts.count }}</h6>
+                </div>
+                <div>
+                    <small class="text-muted">Member Status</small>
+                    <h6>
+                        <span class="badge bg-success">Premium Member</span>
+                    </h6>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Status -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Security Status</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Password Strength</span>
+                        <span class="badge bg-success">Strong</span>
+                    </div>
+                    <div class="progress mt-1" style="height: 5px;">
+                        <div class="progress-bar bg-success" style="width: 90%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Two-Factor Authentication</span>
+                        <span class="badge bg-warning">Not Enabled</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Last Login</span>
+                        <small class="text-muted">{{ user.last_login|date:"M d, g:i A" }}</small>
+                    </div>
+                </div>
+                
+                <div class="d-grid">
+                    <a href="{% url 'security_settings' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-cog me-2"></i>Security Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'transfer_money' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-exchange-alt me-2"></i>Transfer Money
+                    </a>
+                    <a href="{% url 'bill_pay' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Pay Bills
+                    </a>
+                    <a href="{% url 'account_statements' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-file-pdf me-2"></i>View Statements
+                    </a>
+                    <button class="btn btn-outline-warning btn-sm" onclick="contactSupport()">
+                        <i class="fas fa-headset me-2"></i>Contact Support
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function contactSupport() {
+    UIHelpers.showSuccess('Redirecting to support...');
+    setTimeout(() => {
+        window.open('tel:1-800-935-9935', '_blank');
+    }, 1000);
+}
+</script>
+{% endblock %}

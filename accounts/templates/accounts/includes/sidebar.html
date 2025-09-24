@@ -1,0 +1,77 @@
+<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+    <div class="sidebar-sticky pt-3">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'dashboard' %}">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Dashboard
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'transaction_history' %}">
+                    <i class="fas fa-exchange-alt me-2"></i>
+                    Transactions
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'transfer_money' %}">
+                    <i class="fas fa-money-bill-transfer me-2"></i>
+                    Transfer Money
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'bill_pay' %}">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>
+                    Bill Pay
+                </a>
+            </li>
+        </ul>
+
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Accounts</span>
+        </h6>
+        <ul class="nav flex-column">
+            {% for account in accounts %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'account_detail' account.id %}">
+                    <i class="fas fa-credit-card me-2"></i>
+                    {{ account.account_nickname }}
+                    <span class="badge bg-primary float-end">
+                        ${{ account.balance|floatformat:0 }}
+                    </span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span>Services</span>
+        </h6>
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'alerts' %}">
+                    <i class="fas fa-bell me-2"></i>
+                    Alerts
+                    {% if recent_alerts.count > 0 %}
+                    <span class="badge bg-danger float-end">{{ recent_alerts.count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-file-pdf me-2"></i>
+                    Statements
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-question-circle me-2"></i>
+                    Support
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>

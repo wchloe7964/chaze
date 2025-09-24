@@ -1,0 +1,247 @@
+:root {
+    --chase-blue: #117ACA;
+    --chase-dark-blue: #0D5F9A;
+    --chase-light-blue: #E1F0FA;
+    --success-green: #28a745;
+    --danger-red: #dc3545;
+    --warning-yellow: #ffc107;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Header Styles */
+.navbar-brand {
+    font-weight: bold;
+    color: var(--chase-blue) !important;
+}
+
+.navbar-chase {
+    background: linear-gradient(135deg, var(--chase-blue) 0%, var(--chase-dark-blue) 100%);
+}
+
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 48px 0 0;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    background-color: #fff;
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 48px);
+    padding-top: .5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: #333;
+    padding: 0.75rem 1rem;
+    border-left: 3px solid transparent;
+}
+
+.sidebar .nav-link:hover {
+    color: var(--chase-blue);
+    background-color: var(--chase-light-blue);
+    border-left-color: var(--chase-blue);
+}
+
+.sidebar .nav-link.active {
+    color: var(--chase-blue);
+    background-color: var(--chase-light-blue);
+    border-left-color: var(--chase-blue);
+}
+
+.sidebar .nav-link i {
+    margin-right: 0.5rem;
+    color: #6c757d;
+}
+
+.sidebar .nav-link.active i {
+    color: var(--chase-blue);
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    transition: all 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+/* Table Styles */
+.table-hover tbody tr:hover {
+    background-color: rgba(17, 122, 202, 0.05);
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: var(--chase-blue);
+    border-color: var(--chase-blue);
+}
+
+.btn-primary:hover {
+    background-color: var(--chase-dark-blue);
+    border-color: var(--chase-dark-blue);
+}
+
+.btn-outline-primary {
+    color: var(--chase-blue);
+    border-color: var(--chase-blue);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--chase-blue);
+    border-color: var(--chase-blue);
+}
+
+/* Alert Styles */
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* Badge Styles */
+.badge {
+    font-size: 0.75em;
+}
+
+/* Progress Bars */
+.progress {
+    border-radius: 0.5rem;
+}
+
+.progress-bar {
+    background-color: var(--chase-blue);
+}
+
+/* Form Styles */
+.form-control:focus {
+    border-color: var(--chase-blue);
+    box-shadow: 0 0 0 0.2rem rgba(17, 122, 202, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #5a5c69;
+}
+
+/* Transaction Colors */
+.text-credit {
+    color: var(--success-green);
+}
+
+.text-debit {
+    color: var(--danger-red);
+}
+
+.text-transfer {
+    color: var(--warning-yellow);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        position: static;
+        height: auto;
+    }
+    
+    .sidebar-sticky {
+        height: auto;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .sidebar, .navbar, .footer, .btn {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Loading Animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Custom Utilities */
+.border-left-primary {
+    border-left: 0.25rem solid var(--chase-blue) !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid var(--success-green) !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid var(--warning-yellow) !important;
+}
+
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
